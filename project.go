@@ -1,7 +1,6 @@
 package kwgo
 
 import (
-    "net/http"
     "bytes"
     "encoding/json"
     "strconv"
@@ -53,10 +52,10 @@ func (sd *kwTimeFormat) UnmarshalJSON(
 
 // Retrive list of projects
 func (c *KwClient) Projects(
-) ([]Project, *http.Response, error) {
+) ([]Project, error) {
     body, res, err := c.apiRequest("projects", nil)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
     if res.StatusCode == 200 {
         data := bytes.Split(body, []byte{'\n'})
@@ -66,36 +65,38 @@ func (c *KwClient) Projects(
         for _, elem := range data {
             err := json.Unmarshal(elem, &target)
             if err != nil {
-                return nil, nil, err
+                return nil, err
             }
             result = append(result, target)
         }
-        return result, res, nil
+        return result, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
-    return nil, res, nil
+    return nil, &kwErr
 }
 
 // Delete a project
 func (c *KwClient) DeleteProject(
     name string, // Project name
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     body, res, err := c.apiRequest("delete_project", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 // Import project from another Klocwork server
@@ -104,23 +105,24 @@ func (c *KwClient) ImportProject(
     sourceUrl string, // Url to source Klocwork server
     sourceAdmin string, // Projects_root administrator account name
     sourcePassword string, // Projects_root administrator account password
-) (*http.Response, error) {
+) (error) {
     postData := "&project=" + project
     postData += "&sourceURL=" + sourceUrl
     postData += "&sourceAdmin=" + sourceAdmin
     postData += "&sourcePassword=" + sourcePassword
     body, res, err := c.apiRequest("import_project", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 // Import project from another Klocwork server
@@ -131,7 +133,7 @@ func (c *KwClient) UpdateProject(
     tags *string, // (optional) List of comma separated tags
     autoDeleteBuilds *bool, // (optional) Whether the builds in the project should automatically be deleted
     autoDeleteThreshold *bool, // (optional) The number of builds to keep in the project if auto_delete_builds it true (default: 20)
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     if newName != nil {
         postData += "&new_name=" + *newName
@@ -150,30 +152,31 @@ func (c *KwClient) UpdateProject(
     }
     body, res, err := c.apiRequest("update_project", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 // Generate project configuration report
 func (c *KwClient) ProjectConfiguration(
     project string, // Name of the project you want to create a report for
     build *string, // (optional) Name fo the build you want to focus your report on
-) (*ProjectConf, *http.Response, error) {
+) (*ProjectConf, error) {
     postData := "&project=" + project
     if build != nil {
         postData += "&build=" + *build
     }
     body, res, err := c.apiRequest("project_configuration", &postData)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
     if res.StatusCode == 200 {
         data := bytes.Split(body, []byte{'\n'})
@@ -181,14 +184,15 @@ func (c *KwClient) ProjectConfiguration(
         result := ProjectConf{}
         err := json.Unmarshal(data[0], &result)
         if err != nil {
-            return nil, nil, err
+            return nil, err
         }
-        return &result, res, nil
+        return &result, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
-    return nil, res, nil
+    return nil, &kwErr
 }
 

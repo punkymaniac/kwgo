@@ -1,7 +1,6 @@
 package kwgo
 
 import (
-    "net/http"
     "bytes"
     "encoding/json"
     "strconv"
@@ -19,14 +18,14 @@ type DefectType struct {
 func (c *KwClient) DefectTypes(
     project string, // Project name
     taxonomy *string, // (optional) Filter by taxonomy
-) ([]DefectType, *http.Response, error) {
+) ([]DefectType, error) {
     postData := "&project=" + project
     if taxonomy != nil {
         postData += "&taxonomy=" + *taxonomy
     }
     body, res, err := c.apiRequest("defect_types", &postData)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
     if res.StatusCode == 200 {
         data := bytes.Split(body, []byte{'\n'})
@@ -36,17 +35,18 @@ func (c *KwClient) DefectTypes(
         for _, elem := range data {
             err := json.Unmarshal(elem, &target)
             if err != nil {
-                return nil, nil, err
+                return nil, err
             }
             result = append(result, target)
         }
-        return result, res, nil
+        return result, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
-    return nil, res, nil
+    return nil, &kwErr
 }
 
 // Enable or disable a defect
@@ -55,7 +55,7 @@ func (c *KwClient) UpdateDefectType(
     code string, // Defect code
     enabled *bool, // (optional) true to enable, false to disable
     severity *uint64, // (optional) Specify new defect severity
-) (*http.Response, error) {
+) (error) {
     postData := "&project=" + project
     postData += "&code=" + code
     if enabled != nil {
@@ -66,15 +66,16 @@ func (c *KwClient) UpdateDefectType(
     }
     body, res, err := c.apiRequest("update_defect_type", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 

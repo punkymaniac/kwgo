@@ -1,7 +1,6 @@
 package kwgo
 
 import (
-    "net/http"
     "bytes"
     "encoding/json"
     "strconv"
@@ -27,7 +26,7 @@ func (c *KwClient) Groups(
     search *string, // (optional) Simple group name search pattern
     listUsers *bool, // (optional) Output user list for each group
     limit *uint64, // (optional) Maximum number of result to return
-) ([]Group, *http.Response, error) {
+) ([]Group, error) {
     postData := ""
     if search != nil {
         postData += "&search=" + *search
@@ -40,7 +39,7 @@ func (c *KwClient) Groups(
     }
     body, res, err := c.apiRequest("groups", &postData)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
     if res.StatusCode == 200 {
         data := bytes.Split(body, []byte{'\n'})
@@ -50,59 +49,62 @@ func (c *KwClient) Groups(
         for _, elem := range data {
             err := json.Unmarshal(elem, &target)
             if err != nil {
-                return nil, nil, err
+                return nil, err
             }
             result = append(result, target)
         }
-        return result, res, nil
+        return result, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
-    return nil, res, nil
+    return nil, &kwErr
 }
 
 // Create a group and optionally assign users to it
 func (c *KwClient) CreateGroup(
     name string, // The name of the group to create
     users *string, // (optional) Comma separated list of users
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     if users != nil {
         postData += "&users=" + *users
     }
     body, res, err := c.apiRequest("create_group", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 // Delete a group
 func (c *KwClient) DeleteGroup(
     name string, // The name of the group to delete
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     body, res, err := c.apiRequest("delete_group", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 // Update users in a group
@@ -110,7 +112,7 @@ func (c *KwClient) UpdateGroup(
     name string, // The name of the group to update
     users *string, // (optional) Comma separated list of users
     removeAll *bool, // (optional) If 'true', the group's user list will be cleared, Ignored if 'users' is not nil
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     if users != nil {
         postData += "&users=" + *users
@@ -119,15 +121,16 @@ func (c *KwClient) UpdateGroup(
     }
     body, res, err := c.apiRequest("update_group", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 

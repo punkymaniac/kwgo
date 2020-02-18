@@ -1,7 +1,6 @@
 package kwgo
 
 import (
-    "net/http"
     "bytes"
     "encoding/json"
 )
@@ -14,10 +13,10 @@ type Version struct {
 
 // Retrive Klocwork server version
 func (c *KwClient) Version(
-) (*Version, *http.Response, error) {
+) (*Version, error) {
     body, res, err := c.apiRequest("version", nil)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
     if res.StatusCode == 200 {
         data := bytes.Split(body, []byte{'\n'})
@@ -25,14 +24,15 @@ func (c *KwClient) Version(
         result := Version{}
         err := json.Unmarshal(data[0], &result)
         if err != nil {
-            return nil, nil, err
+            return nil, err
         }
-        return &result, res, nil
+        return &result, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
-    return nil, res, nil
+    return nil, &kwErr
 }
 

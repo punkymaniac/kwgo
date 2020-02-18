@@ -1,7 +1,6 @@
 package kwgo
 
 import (
-    "net/http"
     "bytes"
     "encoding/json"
     "strconv"
@@ -148,14 +147,14 @@ func (p *Permission) postString(
 // List roles
 func (c *KwClient) Roles(
     search *string, // (optional) Simple role filter
-) ([]Role, *http.Response, error) {
+) ([]Role, error) {
     postData := ""
     if search != nil {
         postData += "&search=" + *search
     }
     body, res, err := c.apiRequest("roles", &postData)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
     if res.StatusCode == 200 {
         data := bytes.Split(body, []byte{'\n'})
@@ -165,30 +164,31 @@ func (c *KwClient) Roles(
         for _, elem := range data {
             err := json.Unmarshal(elem, &target)
             if err != nil {
-                return nil, nil, err
+                return nil, err
             }
             result = append(result, target)
         }
-        return result, res, nil
+        return result, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
-    return nil, res, nil
+    return nil, &kwErr
 }
 
 // List roles assignments
 func (c *KwClient) RoleAssignments(
     search *string, // (optional) Simple role filter
-) ([]RoleAssignment, *http.Response, error) {
+) ([]RoleAssignment, error) {
     postData := ""
     if search != nil {
         postData += "&search=" + *search
     }
     body, res, err := c.apiRequest("role_assignments", &postData)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
     if res.StatusCode == 200 {
         data := bytes.Split(body, []byte{'\n'})
@@ -198,17 +198,18 @@ func (c *KwClient) RoleAssignments(
         for _, elem := range data {
             err := json.Unmarshal(elem, &target)
             if err != nil {
-                return nil, nil, err
+                return nil, err
             }
             result = append(result, target)
         }
-        return result, res, nil
+        return result, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
-    return nil, res, nil
+    return nil, &kwErr
 }
 
 // Create a role
@@ -216,7 +217,7 @@ func (c *KwClient) CreateRole(
     name string, // The name of the role to create
     permission *Permission, // (optional) Grant or revoke permission
     allowedStatusTransitions *Transition, // (optional) Set the allowed status transition (ex: Any,Analyze;Analyse,Fix)
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     if permission != nil {
         postData += permission.postString()
@@ -226,35 +227,37 @@ func (c *KwClient) CreateRole(
     }
     body, res, err := c.apiRequest("create_role", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 // Delete a role
 func (c *KwClient) DeleteRole(
     name string, // The name of the role to delete
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     body, res, err := c.apiRequest("delete_role", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 // Add or remove a user to/from a role
@@ -264,7 +267,7 @@ func (c *KwClient) UpdateRoleAssignment(
     account string, // The name of the account to add or remove
     group *bool, // (optional) Set to 'true' if the account is a group
     remove *bool, // (optional) Set to 'true' to remove the account from the role
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     if project != nil {
         postData += "&project=" + *project
@@ -278,16 +281,17 @@ func (c *KwClient) UpdateRoleAssignment(
     }
     body, res, err := c.apiRequest("update_role_assignment", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 // Update role permissions
@@ -295,7 +299,7 @@ func (c *KwClient) UpdateRolePermission(
     name string, // The name of the role to update
     permission *Permission, // (optional) Grant or revoke permission
     allowedStatusTransitions *Transition, // (optional) Set the allowed status transition (ex: Any,Analyze;Analyse,Fix)
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     if permission != nil {
         postData += permission.postString()
@@ -305,16 +309,17 @@ func (c *KwClient) UpdateRolePermission(
     }
     body, res, err := c.apiRequest("update_role_permissions", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 //
@@ -325,293 +330,307 @@ func (c *KwClient) UpdateRolePermission(
 func (c *KwClient) RoleCreateProject(
     name string, // The name of the role to update
     value bool, // Grant or revoke permission
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     postData += "&create_project=" + strconv.FormatBool(value)
     body, res, err := c.apiRequest("update_role_permissions", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 // Update manage roles permissions
 func (c *KwClient) RoleManageRoles(
     name string, // The name of the role to update
     value bool, // Grant or revoke permission
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     postData += "&manage_roles=" + strconv.FormatBool(value)
     body, res, err := c.apiRequest("update_role_permissions", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 // Update manage users permissions
 func (c *KwClient) RoleManageUsers(
     name string, // The name of the role to update
     value bool, // Grant or revoke permission
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     postData += "&manage_users=" + strconv.FormatBool(value)
     body, res, err := c.apiRequest("update_role_permissions", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 // Update access source files permissions
 func (c *KwClient) RoleAccessSourceFiles(
     name string, // The name of the role to update
     value bool, // Grant or revoke permission
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     postData += "&access_source_files=" + strconv.FormatBool(value)
     body, res, err := c.apiRequest("update_role_permissions", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 // Update assign role permissions
 func (c *KwClient) RoleAssignRole(
     name string, // The name of the role to update
     value bool, // Grant or revoke permission
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     postData += "&assign_role=" + strconv.FormatBool(value)
     body, res, err := c.apiRequest("update_role_permissions", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 // Update project settings permissions
 func (c *KwClient) RoleChangeProjectSettings(
     name string, // The name of the role to update
     value bool, // Grant or revoke permission
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     postData += "&change_project_settings=" + strconv.FormatBool(value)
     body, res, err := c.apiRequest("update_role_permissions", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 // Update create build permissions
 func (c *KwClient) RoleCreateBuild(
     name string, // The name of the role to update
     value bool, // Grant or revoke permission
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     postData += "&create_build=" + strconv.FormatBool(value)
     body, res, err := c.apiRequest("update_role_permissions", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 // Update delete build permissions
 func (c *KwClient) RoleDeleteBuild(
     name string, // The name of the role to update
     value bool, // Grant or revoke permission
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     postData += "&delete_build=" + strconv.FormatBool(value)
     body, res, err := c.apiRequest("update_role_permissions", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 // Update delete project permissions
 func (c *KwClient) RoleDeleteProject(
     name string, // The name of the role to update
     value bool, // Grant or revoke permission
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     postData += "&delete_project=" + strconv.FormatBool(value)
     body, res, err := c.apiRequest("update_role_permissions", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 // Update manage modules permissions
 func (c *KwClient) RoleManageModules(
     name string, // The name of the role to update
     value bool, // Grant or revoke permission
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     postData += "&manage_modules=" + strconv.FormatBool(value)
     body, res, err := c.apiRequest("update_role_permissions", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 // Update use local configuration permissions
 func (c *KwClient) RoleUseLocalConfiguration(
     name string, // The name of the role to update
     value bool, // Grant or revoke permission
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     postData += "&use_local_configuration=" + strconv.FormatBool(value)
     body, res, err := c.apiRequest("update_role_permissions", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 // Update change issue status permissions
 func (c *KwClient) RoleChangeIssueStatus(
     name string, // The name of the role to update
     value bool, // Grant or revoke permission
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     postData += "&change_issue_status=" + strconv.FormatBool(value)
     body, res, err := c.apiRequest("update_role_permissions", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 // Update web api access permissions
 func (c *KwClient) RoleWebApiAccess(
     name string, // The name of the role to update
     value bool, // Grant or revoke permission
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     postData += "&webapi_access=" + strconv.FormatBool(value)
     body, res, err := c.apiRequest("update_role_permissions", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 // Update perform cross-project synchronization permissions
 func (c *KwClient) RoleExecKwxsync(
     name string, // The name of the role to update
     value bool, // Grant or revoke permission
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     postData += "&execute_kwxsync=" + strconv.FormatBool(value)
     body, res, err := c.apiRequest("update_role_permissions", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 

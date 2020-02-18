@@ -1,7 +1,6 @@
 package kwgo
 
 import (
-    "net/http"
     "bytes"
     "encoding/json"
     "strconv"
@@ -34,7 +33,7 @@ func (c *KwClient) IssueDetails(
     project string, // Name of the project you want to search
     id uint64, // The id to search
     includeXsync *bool, // (optional) Boolean to return xSyncInfo
-) (*IssueDetail, *http.Response, error) {
+) (*IssueDetail, error) {
     postData := "&project=" + project
     postData += "&id=" + strconv.FormatUint(id, 10)
     if includeXsync != nil {
@@ -42,7 +41,7 @@ func (c *KwClient) IssueDetails(
     }
     body, res, err := c.apiRequest("issue_details", &postData)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
     if res.StatusCode == 200 {
         data := bytes.Split(body, []byte{'\n'})
@@ -50,14 +49,15 @@ func (c *KwClient) IssueDetails(
         result := IssueDetail{}
         err := json.Unmarshal(data[0], &result)
         if err != nil {
-            return nil, nil, err
+            return nil, err
         }
-        return &result, res, nil
+        return &result, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
-    return nil, res, nil
+    return nil, &kwErr
 }
 

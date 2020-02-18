@@ -1,7 +1,6 @@
 package kwgo
 
 import (
-    "net/http"
     "bytes"
     "encoding/json"
     "strconv"
@@ -30,7 +29,7 @@ func (c *KwClient) Metrics(
     query *string, // (optional) Search query, such as narrowing by file
     view *string, // (optional) View name
     limit *uint64, // (optional) Search result limit
-) ([]Metric, *http.Response, error) {
+) ([]Metric, error) {
     postData := "&project=" + project
     if query != nil {
         postData += "&query=" + *query
@@ -43,7 +42,7 @@ func (c *KwClient) Metrics(
     }
     body, res, err := c.apiRequest("metrics", &postData)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
     if res.StatusCode == 200 {
         data := bytes.Split(body, []byte{'\n'})
@@ -53,17 +52,18 @@ func (c *KwClient) Metrics(
         for _, elem := range data {
             err := json.Unmarshal(elem, &target)
             if err != nil {
-                return nil, nil, err
+                return nil, err
             }
             result = append(result, target)
         }
-        return result, res, nil
+        return result, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
-    return nil, res, nil
+    return nil, &kwErr
 }
 
 // Retrive the statistic of metrics
@@ -72,7 +72,7 @@ func (c *KwClient) MetricStat(
     query *string, // (optional) Search query, such as narrowing by file
     view *string, // (optional) View name
     limit *uint64, // (optional) Search result limit
-) ([]MetricStat, *http.Response, error) {
+) ([]MetricStat, error) {
     postData := "&project=" + project
     if query != nil {
         postData += "&query=" + *query
@@ -86,7 +86,7 @@ func (c *KwClient) MetricStat(
     postData += "&aggregate=true"
     body, res, err := c.apiRequest("metrics", &postData)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
     if res.StatusCode == 200 {
         data := bytes.Split(body, []byte{'\n'})
@@ -96,16 +96,17 @@ func (c *KwClient) MetricStat(
         for _, elem := range data {
             err := json.Unmarshal(elem, &target)
             if err != nil {
-                return nil, nil, err
+                return nil, err
             }
             result = append(result, target)
         }
-        return result, res, nil
+        return result, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
-    return nil, res, nil
+    return nil, &kwErr
 }
 

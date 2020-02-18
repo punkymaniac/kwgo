@@ -1,7 +1,6 @@
 package kwgo
 
 import (
-    "net/http"
     "bytes"
     "encoding/json"
     "strconv"
@@ -19,7 +18,7 @@ func (c *KwClient) Fchurns(
     viewCreator *string, // (optional) View creator name
     latestsBuilds *uint64, // (optional) The number of builds you want to show in the report
     component *string, // (optional) Root component
-) (*Churn, *http.Response, error) {
+) (*Churn, error) {
     postData := "&project=" + project
     if view != nil {
         postData += "&view=" + *view
@@ -35,7 +34,7 @@ func (c *KwClient) Fchurns(
     }
     body, res, err := c.apiRequest("fchurns", &postData)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
     if res.StatusCode == 200 {
         data := bytes.Split(body, []byte{'\n'})
@@ -43,14 +42,15 @@ func (c *KwClient) Fchurns(
         result := Churn{}
         err := json.Unmarshal(data[0], &result)
         if err != nil {
-            return nil, nil, err
+            return nil, err
         }
-        return &result, res, nil
+        return &result, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
-    return nil, res, nil
+    return nil, &kwErr
 }
 

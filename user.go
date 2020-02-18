@@ -1,7 +1,6 @@
 package kwgo
 
 import (
-    "net/http"
     "bytes"
     "encoding/json"
     "strconv"
@@ -19,7 +18,7 @@ type User struct {
 func (c *KwClient) Users(
     search *string, // (optional) Simple username search pattern
     limit *uint64, // (optional) Maximum number of result to return
-) ([]User, *http.Response, error) {
+) ([]User, error) {
     postData := ""
     if search != nil {
         postData += "&search=" + *search
@@ -29,7 +28,7 @@ func (c *KwClient) Users(
     }
     body, res, err := c.apiRequest("users", &postData)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
     if res.StatusCode == 200 {
         data := bytes.Split(body, []byte{'\n'})
@@ -39,58 +38,61 @@ func (c *KwClient) Users(
         for _, elem := range data {
             err := json.Unmarshal(elem, &target)
             if err != nil {
-                return nil, nil, err
+                return nil, err
             }
             result = append(result, target)
         }
-        return result, res, nil
+        return result, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
-    return nil, res, nil
+    return nil, &kwErr
 }
 
 // Create a user
 func (c *KwClient) CreateUser(
     name string, // The name of the user to create
     password *string, // (optional) assign a password to the new user
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     if password != nil {
         postData += "&password=" + *password
     }
     body, res, err := c.apiRequest("create_user", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 // Delete a user
 func (c *KwClient) DeleteUser(
     name string, // The name of the user to delete
-) (*http.Response, error) {
+) (error) {
     postData := "&name=" + name
     body, res, err := c.apiRequest("delete_user", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 

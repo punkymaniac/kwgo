@@ -1,7 +1,6 @@
 package kwgo
 
 import (
-    "net/http"
     "bytes"
     "encoding/json"
     "strconv"
@@ -20,11 +19,11 @@ type View struct {
 // Retrive list of views
 func (c *KwClient) Views(
     project string, // Project name
-) ([]View, *http.Response, error) {
+) ([]View, error) {
     postData := "&project=" + project
     body, res, err := c.apiRequest("views", &postData)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
     if res.StatusCode == 200 {
         data := bytes.Split(body, []byte{'\n'})
@@ -34,17 +33,18 @@ func (c *KwClient) Views(
         for _, elem := range data {
             err := json.Unmarshal(elem, &target)
             if err != nil {
-                return nil, nil, err
+                return nil, err
             }
             result = append(result, target)
         }
-        return result, res, nil
+        return result, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
-    return nil, res, nil
+    return nil, &kwErr
 }
 
 // Create a view for a project
@@ -54,7 +54,7 @@ func (c *KwClient) CreateView(
     query string, // Search query for the view
     tags *string, // (optional) List of comma separated tags
     isPublic *bool, // (optional) Whether the views is visible to all users with access to this project
-) (*http.Response, error) {
+) (error) {
     postData := "&project=" + project
     postData += "&name=" + name
     postData += "&query=" + query
@@ -66,37 +66,39 @@ func (c *KwClient) CreateView(
     }
     body, res, err := c.apiRequest("create_view", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 // Delete a view
 func (c *KwClient) DeleteView(
     project string, // Project name
     name string, // View name
-) (*http.Response, error) {
+) (error) {
     postData := "&project=" + project
     postData += "&name=" + name
     body, res, err := c.apiRequest("delete_view", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
 // Update a view
@@ -107,7 +109,7 @@ func (c *KwClient) UpdateView(
     query *string, // (optional) Search query for the view
     tags *string, // (optional) List of comma separated tags
     isPublic *bool, // (optional) Whether the views is visible to all users with access to this project
-) (*http.Response, error) {
+) (error) {
     postData := "&project=" + project
     postData += "&name=" + name
     if newName != nil {
@@ -124,15 +126,16 @@ func (c *KwClient) UpdateView(
     }
     body, res, err := c.apiRequest("update_view", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, nil
+    return &kwErr
 }
 
