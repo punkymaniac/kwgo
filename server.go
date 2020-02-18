@@ -22,10 +22,11 @@ func (c *KwClient) ImportServerConf(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return nil, &kwErr
 }
 

@@ -45,11 +45,12 @@ func (c *KwClient) Users(
         }
         return result, res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, nil, err
     }
-    return nil, res, nil
+    return nil, res, &kwErr
 }
 
 // Create a user
@@ -68,11 +69,12 @@ func (c *KwClient) CreateUser(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 
 // Delete a user
@@ -87,10 +89,11 @@ func (c *KwClient) DeleteUser(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 

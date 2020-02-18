@@ -72,11 +72,12 @@ func (c *KwClient) Projects(
         }
         return result, res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, nil, err
     }
-    return nil, res, nil
+    return nil, res, &kwErr
 }
 
 // Delete a project
@@ -91,11 +92,12 @@ func (c *KwClient) DeleteProject(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 
 // Import project from another Klocwork server
@@ -116,11 +118,12 @@ func (c *KwClient) ImportProject(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 
 // Import project from another Klocwork server
@@ -155,11 +158,12 @@ func (c *KwClient) UpdateProject(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 
 // Generate project configuration report
@@ -185,10 +189,11 @@ func (c *KwClient) ProjectConfiguration(
         }
         return &result, res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, nil, err
     }
-    return nil, res, nil
+    return nil, res, &kwErr
 }
 

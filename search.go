@@ -65,10 +65,11 @@ func (c *KwClient) Search(
         }
         return result, res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, nil, err
     }
-    return nil, res, nil
+    return nil, res, &kwErr
 }
 

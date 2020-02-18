@@ -171,11 +171,12 @@ func (c *KwClient) Roles(
         }
         return result, res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, nil, err
     }
-    return nil, res, nil
+    return nil, res, &kwErr
 }
 
 // List roles assignments
@@ -204,11 +205,12 @@ func (c *KwClient) RoleAssignments(
         }
         return result, res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, nil, err
     }
-    return nil, res, nil
+    return nil, res, &kwErr
 }
 
 // Create a role
@@ -231,11 +233,12 @@ func (c *KwClient) CreateRole(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 
 // Delete a role
@@ -250,11 +253,12 @@ func (c *KwClient) DeleteRole(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 
 // Add or remove a user to/from a role
@@ -283,11 +287,12 @@ func (c *KwClient) UpdateRoleAssignment(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 
 // Update role permissions
@@ -310,11 +315,12 @@ func (c *KwClient) UpdateRolePermission(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 
 //
@@ -335,11 +341,12 @@ func (c *KwClient) RoleCreateProject(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 
 // Update manage roles permissions
@@ -356,11 +363,12 @@ func (c *KwClient) RoleManageRoles(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 
 // Update manage users permissions
@@ -377,11 +385,12 @@ func (c *KwClient) RoleManageUsers(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 
 // Update access source files permissions
@@ -398,11 +407,12 @@ func (c *KwClient) RoleAccessSourceFiles(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 
 // Update assign role permissions
@@ -419,11 +429,12 @@ func (c *KwClient) RoleAssignRole(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 
 // Update project settings permissions
@@ -440,11 +451,12 @@ func (c *KwClient) RoleChangeProjectSettings(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 
 // Update create build permissions
@@ -461,11 +473,12 @@ func (c *KwClient) RoleCreateBuild(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 
 // Update delete build permissions
@@ -482,11 +495,12 @@ func (c *KwClient) RoleDeleteBuild(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 
 // Update delete project permissions
@@ -503,11 +517,12 @@ func (c *KwClient) RoleDeleteProject(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 
 // Update manage modules permissions
@@ -524,11 +539,12 @@ func (c *KwClient) RoleManageModules(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 
 // Update use local configuration permissions
@@ -545,11 +561,12 @@ func (c *KwClient) RoleUseLocalConfiguration(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 
 // Update change issue status permissions
@@ -566,11 +583,12 @@ func (c *KwClient) RoleChangeIssueStatus(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 
 // Update web api access permissions
@@ -587,11 +605,12 @@ func (c *KwClient) RoleWebApiAccess(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 
 // Update perform cross-project synchronization permissions
@@ -608,10 +627,11 @@ func (c *KwClient) RoleExecKwxsync(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 

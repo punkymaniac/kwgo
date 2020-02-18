@@ -40,11 +40,12 @@ func (c *KwClient) Views(
         }
         return result, res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, nil, err
     }
-    return nil, res, nil
+    return nil, res, &kwErr
 }
 
 // Create a view for a project
@@ -71,11 +72,12 @@ func (c *KwClient) CreateView(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 
 // Delete a view
@@ -92,11 +94,12 @@ func (c *KwClient) DeleteView(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 
 // Update a view
@@ -129,10 +132,11 @@ func (c *KwClient) UpdateView(
     if res.StatusCode == 200 {
         return res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, err
     }
-    return res, nil
+    return res, &kwErr
 }
 

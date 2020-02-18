@@ -34,11 +34,12 @@ func (c *KwClient) ImportStatus(
         }
         return result, res, nil
     }
-    err = json.Unmarshal(body, &c.KwErr)
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
     if err != nil {
         return nil, nil, err
     }
-    return nil, res, nil
+    return nil, res, &kwErr
 }
 
 // Change the status, owner, and comment, or alternatively set the bug tracker id of issues
@@ -73,13 +74,14 @@ func (c *KwClient) UpdateStatus(
     if err != nil {
         return nil, err
     }
-    if res.StatusCode != 200 {
-        err = json.Unmarshal(body, &c.KwErr)
-        if err != nil {
-            return nil, err
-        }
+    if res.StatusCode == 200 {
         return res, nil
     }
-    return res, nil
+    var kwErr kwError
+    err = json.Unmarshal(body, &kwErr)
+    if err != nil {
+        return nil, err
+    }
+    return res, &kwErr
 }
 

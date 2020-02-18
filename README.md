@@ -17,8 +17,6 @@ kw := kwgo.NewKwClient("url", "user", "ltoken")
 data, res, err := kw.Version()
 if err != nil {
     fmt.Println(err)
-} else if res.StatusCode != 200 {
-    fmt.Printf("%d: %s\n", kw.KwErr.Status, kw.KwErr.Message)
 }
 
 fmt.Println(data)

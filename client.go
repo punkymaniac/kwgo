@@ -3,6 +3,7 @@
 package kwgo
 
 import (
+    "fmt"
     "net/http"
     "time"
     "io/ioutil"
@@ -16,14 +17,17 @@ type KwClient struct {
     serverUrl string
     user string
     ltoken string
-    // The body error of the last request could be found here
-    KwErr Kwerr
 }
 
 // Body data returned by the api on error
-type Kwerr struct {
+type kwError struct {
     Status uint `json:"status"`
     Message string `json:"message"`
+}
+
+// Implement error interface
+func (e *kwError) Error() string {
+    return fmt.Sprintf("Status %d: %s", e.Status, e.Message)
 }
 
 // Return a KwClient
@@ -66,8 +70,6 @@ func (c *KwClient) apiRequest(
     if err != nil {
         return nil, nil, err
     }
-    c.KwErr.Status = 0
-    c.KwErr.Message = ""
     return body, res, nil
 }
 
