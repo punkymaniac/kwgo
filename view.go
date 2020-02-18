@@ -123,7 +123,6 @@ func (c *KwClient) UpdateView(
         postData += "&is_public=" + strconv.FormatBool(*isPublic)
     }
     body, res, err := c.apiRequest("update_view", &postData)
-    //fmt.Println(string(body))
     if err != nil {
         return nil, err
     }

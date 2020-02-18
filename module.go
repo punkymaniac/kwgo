@@ -153,7 +153,6 @@ func (c *KwClient) UpdateModule(
         postData += "&tags=" + *tags
     }
     body, res, err := c.apiRequest("update_module", &postData)
-    //fmt.Println(string(body))
     if err != nil {
         return nil, err
     }
