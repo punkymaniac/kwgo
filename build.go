@@ -1,7 +1,6 @@
 package kwgo
 
 import (
-    "net/http"
     "bytes"
     "encoding/json"
     "strconv"
@@ -18,11 +17,11 @@ type Build struct {
 // Retrive the list of builds for a project
 func (c *KwClient) Builds(
     project string, // Project name
-) ([]Build, *http.Response, error) {
+) ([]Build, error) {
     postData := "&project=" + project
     body, res, err := c.apiRequest("builds", &postData)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
     if res.StatusCode == 200 {
         data := bytes.Split(body, []byte{'\n'})
@@ -32,40 +31,40 @@ func (c *KwClient) Builds(
         for _, elem := range data {
             err := json.Unmarshal(elem, &target)
             if err != nil {
-                return nil, nil, err
+                return nil, err
             }
             result = append(result, target)
         }
-        return result, res, nil
+        return result, nil
     }
     var kwErr kwError
     err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
-    return nil, res, &kwErr
+    return nil, &kwErr
 }
 
 // Delete a build
 func (c *KwClient) DeleteBuild(
     project string, // Project name
     name string, // Build name
-) (*http.Response, error) {
+) (error) {
     postData := "&project=" + project
     postData += "&name=" + name
     body, res, err := c.apiRequest("delete_build", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
     var kwErr kwError
     err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, &kwErr
+    return &kwErr
 }
 
 // Update a build
@@ -74,7 +73,7 @@ func (c *KwClient) UpdateBuild(
     name string, // Build name
     newName *string, // (optional) New build name
     keepit *bool, // (optional) Whether this build will be deleted by the auto-delete build feature
-) (*http.Response, error) {
+) (error) {
     postData := "&project=" + project
     postData += "&name=" + name
     if newName != nil {
@@ -85,16 +84,16 @@ func (c *KwClient) UpdateBuild(
     }
     body, res, err := c.apiRequest("update_build", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
     var kwErr kwError
     err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, &kwErr
+    return &kwErr
 }
 

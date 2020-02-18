@@ -1,7 +1,6 @@
 package kwgo
 
 import (
-    "net/http"
     "bytes"
     "encoding/json"
     "strconv"
@@ -35,7 +34,7 @@ func (c *KwClient) Report(
     y *string, // (optional) The variable you want to set along the y-axis
     yDrilldown *string, // (optional) Column drill-down item id
     groupIssues *bool, // (optional) Show grouped issues
-) (*ReportData, *http.Response, error) {
+) (*ReportData, error) {
     postData := "&project=" + project
     if build != nil {
         postData += "&build=" + *build
@@ -63,7 +62,7 @@ func (c *KwClient) Report(
     }
     body, res, err := c.apiRequest("report", &postData)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
     if res.StatusCode == 200 {
         data := bytes.Split(body, []byte{'\n'})
@@ -71,15 +70,15 @@ func (c *KwClient) Report(
         result := ReportData{}
         err := json.Unmarshal(data[0], &result)
         if err != nil {
-            return nil, nil, err
+            return nil, err
         }
-        return &result, res, nil
+        return &result, nil
     }
     var kwErr kwError
     err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
-    return nil, res, &kwErr
+    return nil, &kwErr
 }
 

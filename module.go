@@ -1,7 +1,6 @@
 package kwgo
 
 import (
-    "net/http"
     "bytes"
     "encoding/json"
     "strconv"
@@ -18,11 +17,11 @@ type Module struct {
 // Retrive list of modules for a project
 func (c *KwClient) Modules(
     project string, // Project name
-) ([]Module, *http.Response, error) {
+) ([]Module, error) {
     postData := "&project=" + project
     body, res, err := c.apiRequest("modules", &postData)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
     if res.StatusCode == 200 {
         data := bytes.Split(body, []byte{'\n'})
@@ -32,18 +31,18 @@ func (c *KwClient) Modules(
         for _, elem := range data {
             err := json.Unmarshal(elem, &target)
             if err != nil {
-                return nil, nil, err
+                return nil, err
             }
             result = append(result, target)
         }
-        return result, res, nil
+        return result, nil
     }
     var kwErr kwError
     err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
-    return nil, res, &kwErr
+    return nil, &kwErr
 }
 
 // Create a module for a project
@@ -57,7 +56,7 @@ func (c *KwClient) CreateModule(
     denyGroups *string, // (optional) Deny access to groups
     paths string, // List of comma separated path regexps
     tags *string, // (optional) List of comma separated tags
-) (*http.Response, error) {
+) (error) {
     postData := "&project=" + project
     postData += "&name=" + name
     if allowAll != nil {
@@ -81,39 +80,39 @@ func (c *KwClient) CreateModule(
     }
     body, res, err := c.apiRequest("create_module", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
     var kwErr kwError
     err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, &kwErr
+    return &kwErr
 }
 
 // Delete a module
 func (c *KwClient) DeleteModule(
     project string, // Project name
     name string, // View name
-) (*http.Response, error) {
+) (error) {
     postData := "&project=" + project
     postData += "&name=" + name
     body, res, err := c.apiRequest("delete_module", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
     var kwErr kwError
     err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, &kwErr
+    return &kwErr
 }
 
 // Update a module
@@ -128,7 +127,7 @@ func (c *KwClient) UpdateModule(
     denyGroups *string, // (optional) Deny access to groups
     paths *string, // (optional) List of comma separated path regexps
     tags *string, // (optional) List of comma separated tags
-) (*http.Response, error) {
+) (error) {
     postData := "&project=" + project
     postData += "&name=" + name
     if newName != nil {
@@ -157,16 +156,16 @@ func (c *KwClient) UpdateModule(
     }
     body, res, err := c.apiRequest("update_module", &postData)
     if err != nil {
-        return nil, err
+        return err
     }
     if res.StatusCode == 200 {
-        return res, nil
+        return nil
     }
     var kwErr kwError
     err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, err
+        return err
     }
-    return res, &kwErr
+    return &kwErr
 }
 

@@ -14,7 +14,7 @@ import "github.com/punkymaniac/kwgo"
 
 kw := kwgo.NewKwClient("url", "user", "ltoken")
 
-data, res, err := kw.Version()
+data, err := kw.Version()
 if err != nil {
     fmt.Println(err)
 }

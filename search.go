@@ -1,7 +1,6 @@
 package kwgo
 
 import (
-    "net/http"
     "bytes"
     "encoding/json"
     "strconv"
@@ -33,7 +32,7 @@ func (c *KwClient) Search(
     view *string, // (optional) View name
     limit *uint64, // (optional) Search result limit
     summary *string, // (optional) Include summary record to output stream
-) ([]Issue, *http.Response, error) {
+) ([]Issue, error) {
     postData := "&project=" + project
     if query != nil {
         postData += "&query=" + *query
@@ -49,7 +48,7 @@ func (c *KwClient) Search(
     }
     body, res, err := c.apiRequest("search", &postData)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
     if res.StatusCode == 200 {
         data := bytes.Split(body, []byte{'\n'})
@@ -59,17 +58,17 @@ func (c *KwClient) Search(
         for _, elem := range data {
             err := json.Unmarshal(elem, &target)
             if err != nil {
-                return nil, nil, err
+                return nil, err
             }
             result = append(result, target)
         }
-        return result, res, nil
+        return result, nil
     }
     var kwErr kwError
     err = json.Unmarshal(body, &kwErr)
     if err != nil {
-        return nil, nil, err
+        return nil, err
     }
-    return nil, res, &kwErr
+    return nil, &kwErr
 }
 
