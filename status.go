@@ -2,6 +2,8 @@ package kwgo
 
 import (
     "net/http"
+    "strconv"
+    "strings"
     "bytes"
     "encoding/json"
 )
@@ -37,5 +39,47 @@ func (c *KwClient) ImportStatus(
         return nil, nil, err
     }
     return nil, res, nil
+}
+
+// Change the status, owner, and comment, or alternatively set the bug tracker id of issues
+func (c *KwClient) UpdateStatus(
+    project string, // Project name
+    ids []uint64, // List of ids to change
+    status *string, // (optional) New status to set
+    comment *string, // (optional) New comment to set
+    owner *string, // (optional) New owner to set
+    bugTrackerId *uint64, // (optional) New bug tracker id to set
+) (*http.Response, error) {
+    postData := "&project=" + project
+    idsText := []string{}
+    for _, value := range ids {
+        text := strconv.FormatUint(value, 10)
+        idsText = append(idsText, text)
+    }
+    postData += "&ids=" + strings.Join(idsText, ",")
+    if status != nil {
+        postData += "&status=" + *status
+    }
+    if comment != nil {
+        postData += "&comment=" + *comment
+    }
+    if owner != nil {
+        postData += "&owner=" + *owner
+    }
+    if bugTrackerId != nil {
+        postData += "&bug_tracker_id=" + strconv.FormatUint(*bugTrackerId, 10)
+    }
+    body, res, err := c.apiRequest("update_status", &postData)
+    if err != nil {
+        return nil, err
+    }
+    if res.StatusCode != 200 {
+        err = json.Unmarshal(body, &c.KwErr)
+        if err != nil {
+            return nil, err
+        }
+        return res, nil
+    }
+    return res, nil
 }
 
